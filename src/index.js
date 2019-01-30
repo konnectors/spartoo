@@ -49,7 +49,7 @@ function authenticate(username, password) {
   return signin({
     url: `https://www.spartoo.com/securelogin.php?from=compte`,
     formSelector: '.loginContent form',
-    formData: { email_address: username, password: password },
+    formData: { email_address: username, password },
     validate: (statusCode, $, fullResponse) => {
       if ($(`a.deconnect`).length === 1 && fullResponse.request.uri.href == 'https://www.spartoo.com/compte.php') {
         return true
