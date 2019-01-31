@@ -85,6 +85,6 @@
       }
     }
   },
-  "banksTransactionRegExp": "\\bbooks\\b",
+  "banksTransactionRegExp": "\\bspartoo\\b",
   "manifest_version": "2"
 }
