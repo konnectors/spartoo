@@ -80,7 +80,7 @@ async function parseDocuments($) {
     var doc = docs[i]
 
     // Format date for filename
-    doc.formatedDate = formatFilenameDate(doc.date)
+    doc.formatedDate = formatDate(doc.date)
 
     // Add required fields for saveBills
     docs[i] = {
@@ -100,13 +100,6 @@ async function parseDocuments($) {
   return docs
 }
 
-function formatFilenameDate(date) {
-  return `${date.getFullYear()}-${(
-    '0' +
-    (date.getMonth() + 1)
-  ).slice(-2)}-${('0' + date.getDate()).slice(-2)}`
-}
-
 function parseUrl(url) {
   var orderId = url.split('&')[1]
   orderId = orderId.split("'")[0]
@@ -119,11 +112,22 @@ function parseAmount(amount) {
   return parseFloat(amount)
 }
 
-function parseDate(date) {
-  let [day] = date.split(' ')
-  day = day.split('/').reverse()
-  const year = day.shift()
-  day.push(year)
-  day = day.join('/')
-  return new Date(`${day}`)
+// Convert a french date to Date object
+function parseDate(text) {
+  const [d, m, y] = text.split('/', 3).map(e => parseInt(e, 10))
+  return new Date(y, m - 1, d)
+}
+
+// Convert a Date object to a ISO date string
+function formatDate(date) {
+  let year = date.getFullYear()
+  let month = date.getMonth() + 1
+  let day = date.getDate()
+  if (month < 10) {
+    month = '0' + month
+  }
+  if (day < 10) {
+    day = '0' + day
+  }
+  return `${year}-${month}-${day}`
 }
