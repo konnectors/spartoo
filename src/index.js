@@ -4,8 +4,6 @@ const {
   signin,
   scrape,
   saveBills,
-  htmlToPDF,
-  createCozyPDFDocument,
   log
 } = require('cozy-konnector-libs')
 const request = requestFactory({
@@ -24,7 +22,9 @@ async function start(fields) {
   log('info', 'Successfully logged in')
   // The BaseKonnector instance expects a Promise as return of the function
   log('info', 'Fetching the list of documents')
-  const $ = await request(`${baseUrl}/ajax/compte/compte_historique.php?type=article`)
+  const $ = await request(
+    `${baseUrl}/ajax/compte/compte_historique.php?type=article`
+  )
   log('info', 'Parsing list of documents')
   const documents = await parseDocuments($)
 
@@ -41,7 +41,10 @@ function authenticate(username, password) {
     formSelector: '.loginContent form',
     formData: { email_address: username, password },
     validate: (statusCode, $, fullResponse) => {
-      if ($(`a.deconnect`).length === 1 && fullResponse.request.uri.href == 'https://www.spartoo.com/compte.php') {
+      if (
+        $(`a.deconnect`).length === 1 &&
+        fullResponse.request.uri.href == 'https://www.spartoo.com/compte.php'
+      ) {
         return true
       } else {
         log('error', $('.messageStackError').text())
@@ -66,7 +69,12 @@ async function parseDocuments($) {
       },
       vendorRef: {
         sel: 'a',
-        parse: vendorRef => vendorRef.replace(' ', '').replace(' ', '').replace(' ', '').split(' ')[0]
+        parse: vendorRef =>
+          vendorRef
+            .replace(' ', '')
+            .replace(' ', '')
+            .replace(' ', '')
+            .split(' ')[0]
       },
       date: {
         sel: 'td:nth-child(2)',
@@ -76,7 +84,7 @@ async function parseDocuments($) {
     'tbody tr:not(.headingTable)'
   )
 
-   for (var i = 0; i < docs.length; i++) {
+  for (var i = 0; i < docs.length; i++) {
     var doc = docs[i]
 
     // Format date for filename
@@ -89,13 +97,13 @@ async function parseDocuments($) {
       vendor: 'spartoo',
       filename: `${doc.formatedDate}_spartoo_${doc.amount.toFixed(2)}€_${
         doc.vendorRef
-        }.pdf`,
+      }.pdf`,
       metadata: {
         importDate: new Date(),
         version: 1
       }
     }
-    delete docs[i].formatedDate  // remove useless fields for saveBills
+    delete docs[i].formatedDate // remove useless fields for saveBills
   }
   return docs
 }
