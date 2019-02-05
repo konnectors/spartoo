@@ -1,14 +1,14 @@
 {
   "version": "1.0.0",
-  "name": "Connector template",
+  "name": "Spartoo",
   "type": "konnector",
   "language": "node",
   "icon": "icon.png",
-  "slug": "template",
-  "source": "git://github.com/konnectors/cozy-konnector-template.git",
+  "slug": "spartoo",
+  "source": "git://github.com/konnectors/spartoo.git",
   "editor": "Cozy",
-  "vendor_link": "Link to the target website",
-  "categories": ["other"],
+  "vendor_link": "https://www.spartoo.com",
+  "categories": ["shopping"],
   "fields": {
     "login": {
       "type": "email"
@@ -49,8 +49,8 @@
   "langs": ["fr", "en"],
   "locales": {
     "fr": {
-      "short_description": "Template de connecteur",
-      "long_description": "Ce template récupère une liste de livres sur un site de scraping",
+      "short_description": "Récupère vos factures",
+      "long_description": "Récupère les factures de vos commandes Spartoo",
       "permissions": {
         "bank operations": {
           "description": "Utilisé pour relier les factures à des operations bancaires"
@@ -67,8 +67,8 @@
       }
     },
     "en": {
-      "short_description": "Connector template",
-      "long_description": "This template fetches a list of books from a scraping website",
+      "short_description": "Fetch your bills",
+      "long_description": "TFetch bills from your Spartoo orders",
       "permissions": {
         "bank operations": {
           "description": "Required to link bank operations to bills"
@@ -85,6 +85,6 @@
       }
     }
   },
-  "banksTransactionRegExp": "\\bbooks\\b",
+  "banksTransactionRegExp": "\\bspartoo\\b",
   "manifest_version": "2"
 }
