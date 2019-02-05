@@ -4,18 +4,13 @@ const {
   signin,
   scrape,
   saveBills,
+  htmlToPDF,
+  createCozyPDFDocument,
   log
 } = require('cozy-konnector-libs')
 const request = requestFactory({
-  // the debug mode shows all the details about http request and responses. Very useful for
-  // debugging but very verbose. That is why it is commented out by default
-  // debug: true,
-  // activates [cheerio](https://cheerio.js.org/) parsing on each page
   cheerio: true,
-  // If cheerio is activated do not forget to deactivate json parsing (which is activated by
-  // default in cozy-konnector-libs
   json: false,
-  // this allows request-promise to keep cookies between requests
   jar: true
 })
 
@@ -28,21 +23,16 @@ async function start(fields) {
   await authenticate(fields.login, fields.password)
   log('info', 'Successfully logged in')
   // The BaseKonnector instance expects a Promise as return of the function
-  /* log('info', 'Fetching the list of documents')
-   const $ = await request(`${baseUrl}/index.html`)
-   // cheerio (https://cheerio.js.org/) uses the same api as jQuery (http://jquery.com/)
-   log('info', 'Parsing list of documents')
-   const documents = await parseDocuments($)
- 
-   // here we use the saveBills function even if what we fetch are not bills, but this is the most
-   // common case in connectors
-   log('info', 'Saving data to Cozy')
-   await saveBills(documents, fields, {
-     // this is a bank identifier which will be used to link bills to bank operations. These
-     // identifiers should be at least a word found in the title of a bank operation related to this
-     // bill. It is not case sensitive.
-     identifiers: ['books']
-   })*/
+  log('info', 'Fetching the list of documents')
+  const $ = await request(`${baseUrl}/ajax/compte/compte_historique.php?type=article`)
+  log('info', 'Parsing list of documents')
+  const documents = await parseDocuments($)
+
+  log('info', 'Saving data to Cozy')
+  await saveBills(documents, fields, {
+    identifiers: ['spartoo'],
+    contentType: 'application/pdf'
+  })
 }
 
 function authenticate(username, password) {
@@ -61,53 +51,83 @@ function authenticate(username, password) {
   })
 }
 
-// The goal of this function is to parse a html page wrapped by a cheerio instance
-// and return an array of js objects which will be saved to the cozy by saveBills (https://github.com/konnectors/libs/blob/master/packages/cozy-konnector-libs/docs/api.md#savebills)
-function parseDocuments($) {
-  // you can find documentation about the scrape function here :
-  // https://github.com/konnectors/libs/blob/master/packages/cozy-konnector-libs/docs/api.md#scrape
+async function parseDocuments($) {
   const docs = scrape(
     $,
     {
-      title: {
-        sel: 'h3 a',
-        attr: 'title'
-      },
       amount: {
-        sel: '.price_color',
-        parse: normalizePrice
+        sel: 'td:nth-child(5)',
+        parse: parseAmount
       },
       fileurl: {
-        sel: 'img',
-        attr: 'src',
-        parse: src => `${baseUrl}/${src}`
+        sel: 'a',
+        attr: 'onclick',
+        parse: parseUrl
       },
-      filename: {
-        sel: 'h3 a',
-        attr: 'title',
-        parse: title => `${title}.jpg`
+      vendorRef: {
+        sel: 'a',
+        parse: vendorRef => vendorRef.replace(' ', '').replace(' ', '').replace(' ', '').split(' ')[0]
+      },
+      date: {
+        sel: 'td:nth-child(2)',
+        parse: parseDate
       }
     },
-    'article'
+    'tbody tr:not(.headingTable)'
   )
-  return docs.map(doc => ({
-    ...doc,
-    // the saveBills function needs a date field
-    // even if it is a little artificial here (these are not real bills)
-    date: new Date(),
-    currency: '€',
-    vendor: 'template',
-    metadata: {
-      // it can be interesting that we add the date of import. This is not mandatory but may be
-      // useful for debugging or data migration
-      importDate: new Date(),
-      // document version, useful for migration after change of document structure
-      version: 1
+
+   for (var i = 0; i < docs.length; i++) {
+    var doc = docs[i]
+
+    // Format date for filename
+    doc.formatedDate = formatDate(doc.date)
+
+    // Add required fields for saveBills
+    docs[i] = {
+      ...doc,
+      currency: '€',
+      vendor: 'spartoo',
+      filename: `${doc.formatedDate}_spartoo_${doc.amount.toFixed(2)}€_${
+        doc.vendorRef
+        }.pdf`,
+      metadata: {
+        importDate: new Date(),
+        version: 1
+      }
     }
-  }))
+    delete docs[i].formatedDate  // remove useless fields for saveBills
+  }
+  return docs
 }
 
-// convert a price string to a float
-function normalizePrice(price) {
-  return parseFloat(price.replace('£', '').trim())
+function parseUrl(url) {
+  var orderId = url.split('&')[1]
+  orderId = orderId.split("'")[0]
+  return `${baseUrl}/facturesclient.php?${orderId}`
+}
+
+function parseAmount(amount) {
+  amount = amount.replace('€', '')
+  amount = amount.replace(',', '.')
+  return parseFloat(amount)
+}
+
+// Convert a french date to Date object
+function parseDate(text) {
+  const [d, m, y] = text.split('/', 3).map(e => parseInt(e, 10))
+  return new Date(y, m - 1, d)
+}
+
+// Convert a Date object to a ISO date string
+function formatDate(date) {
+  let year = date.getFullYear()
+  let month = date.getMonth() + 1
+  let day = date.getDate()
+  if (month < 10) {
+    month = '0' + month
+  }
+  if (day < 10) {
+    day = '0' + day
+  }
+  return `${year}-${month}-${day}`
 }
