@@ -75,7 +75,7 @@
     },
     "en": {
       "short_description": "Fetch your bills",
-      "long_description": "TFetch bills from your Spartoo orders",
+      "long_description": "Fetch bills from your Spartoo orders",
       "permissions": {
         "bank operations": {
           "description": "Required to link bank operations to bills"
