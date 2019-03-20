@@ -5,7 +5,7 @@
   "language": "node",
   "icon": "icon.svg",
   "slug": "spartoo",
-  "source": "git://github.com/konnectors/spartoo.git",
+  "source": "git@github.com:konnectors/spartoo.git",
   "editor": "Cozy",
   "vendor_link": "https://www.spartoo.com",
   "categories": [
