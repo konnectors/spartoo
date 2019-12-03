@@ -1,10 +1,8 @@
 language: node_js
 node_js:
-- '8'
+- '12'
 env:
   global:
-  - GH_USER_EMAIL="travis@example.org"
-  - GH_USER_NAME="cozy-bot"
   - DEPLOY_REPOSITORY="git@github.com:konnectors/spartoo.git"
   - secure: mm0KDS16mVB60u5xetPNyY+kE6Xwwz2qgjV5LG95+GTQAugv6tdY8kfO/aCtvywDkf+rGjgyNEGRLIbb9lUVvqapTm3tMuVDwTu5pFRZsAMIuLcYHjX/w8dxUOkzDlQFSE/89OZEZilxO1ZzD2cPWN8AWRz9uMjK6nYxVo0U8rPSNgXLWb+t3lg7uLryeyD5ofdwwfNtdjhmikKLK8eKK2drcjScdFgkl9V0T+E1/8HheJxT2em9qy/WN5CYW/0OQemvHDwSckJjFJKC7huxIIUrfgMzKUzuqIe8jO8xQB32zvI4C+1511Vu2+C3Ny6QDXoX2yw/2kf6xrCuJW52Skee8oU82VsaAMOU2AULW9MK2sY70Uyg1U84SG0wZUuc9aIvW6b14Wx8VcTtU9F/Ki7PzbC+ZgP3ACPdnidwDYe1ClKdGFoNDEUeUlHDwtLKnToqnmC4oB1mXUx4Ki42kHQqA6VQN1STjAOuFIHCHQRlD1oLeYMsadXQHfjl2BBBIBiRqEZpjnVLaoAGQLSj7BbjcJveH3YhN0RNOl4tjyIepK2iHIvbwVyONWxU51jICv+zKrTV7Kkbu1AVUDYOH8HLjHMxah4xRWl94Wg3I7KwhEBckE56JBMbqpszy5VPn02QLbg2c5CotO7myNjBbIPpztVlUUflUHI6tvrG/+4=
 cache:
